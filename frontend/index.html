@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="NexBank">
+    <meta name="theme-color" content="#0a0a0a">
+    
+    <title>NexBank - AI Digital Wallet</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap"
+        rel="stylesheet">
+    <!-- Icons (Lucide) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- Premium Overlays -->
+    <div class="noise-overlay"></div>
+    <div class="cursor-glow" id="cursorGlow"></div>
+
+    <!-- Cinematic Preloader -->
+    <div id="preloader" class="preloader">
+        <div class="preloader-content">
+            <div class="preloader-logo">
+                <i data-lucide="wallet"></i>
+            </div>
+            <div class="preloader-text">
+                <span class="p-title">NEXBANK</span>
+                <span class="p-subtitle">Neural Engine Initializing</span>
+            </div>
+            <div class="loader-bar-container">
+                <div class="loader-bar" id="loaderBar"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Background Decor -->
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+    <div class="bg-orb orb-3"></div>
+
+    <!-- Cinematic Login / Register Screen -->
+    <div id="loginScreen" class="login-wrapper">
+        <div class="login-card glass-card tiltable">
+            <div class="login-header">
+                <div class="logo-icon large"><i data-lucide="wallet"></i></div>
+                <h1>NEXBANK</h1>
+                <p id="authSubtitle">Enter credentials to access your AI wallet</p>
+            </div>
+
+            <!-- LOGIN FORM -->
+            <form id="loginForm" class="login-form auth-panel" data-panel="login">
+                <div class="form-group">
+                    <label>Username</label>
+                    <div class="input-container">
+                        <i data-lucide="user"></i>
+                        <input type="text" id="usernameInput" placeholder="Enter username" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <div class="input-container">
+                        <i data-lucide="key"></i>
+                        <input type="password" id="passwordInput" placeholder="••••••••" required>
+                        <button type="button" class="password-toggle" id="togglePassword"><i
+                                data-lucide="eye"></i></button>
+                    </div>
+                </div>
+                <button type="button" class="btn-primary" id="loginBtn">
+                    <span>Secure Access</span>
+                    <div class="btn-glow"></div>
+                </button>
+                <p class="auth-switch">No account? <a href="#" id="goToRegister">Create one</a></p>
+            </form>
+
+            <!-- REGISTER FORM -->
+            <form id="registerForm" class="login-form auth-panel hidden-permanent" data-panel="register">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <div class="input-container">
+                        <i data-lucide="user"></i>
+                        <input type="text" id="regNameInput" placeholder="e.g. Fatih D." required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Username</label>
+                    <div class="input-container">
+                        <i data-lucide="at-sign"></i>
+                        <input type="text" id="regUsernameInput" placeholder="Choose a username" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Password <span style="font-size:11px;opacity:.5">(min 6 chars)</span></label>
+                    <div class="input-container">
+                        <i data-lucide="key"></i>
+                        <input type="password" id="regPasswordInput" placeholder="••••••••" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Confirm Password</label>
+                    <div class="input-container">
+                        <i data-lucide="shield-check"></i>
+                        <input type="password" id="regConfirmInput" placeholder="••••••••" required>
+                    </div>
+                </div>
+                <button type="button" class="btn-primary" id="registerBtn">
+                    <span>Create Account</span>
+                    <div class="btn-glow"></div>
+                </button>
+                <p class="auth-switch">Already have an account? <a href="#" id="goToLogin">Sign in</a></p>
+            </form>
+
+            <div id="loginError" class="login-error" style="display: none;">
+                <i data-lucide="alert-circle"></i>
+                <span id="loginErrorMsg">Invalid credentials. Please try again.</span>
+            </div>
+            <div class="login-footer">
+                <span>Protected by NexShield™ AI</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Session Expired Toast -->
+    <div id="sessionToast" class="session-toast hidden-permanent">
+        <i data-lucide="clock"></i>
+        <span>Session expired. Please log in again.</span>
+    </div>
+
+    <div class="app-container" id="appContainer" style="display: none;">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar" id="sidebar">
+            <!-- Mobile hamburger close -->
+            <button class="sidebar-close" id="sidebarClose"><i data-lucide="x"></i></button>
+            <div class="logo">
+                <div class="logo-icon"><i data-lucide="wallet"></i></div>
+                <span>NexBank</span>
+            </div>
+
+            <ul class="nav-links">
+                <li class="active"><a href="#" data-view="dashboard"><i data-lucide="layout-dashboard"></i>
+                        Dashboard</a></li>
+                <li><a href="#" data-view="transactions"><i data-lucide="arrow-left-right"></i> Transactions</a></li>
+                <li><a href="#" data-view="analytics"><i data-lucide="pie-chart"></i> Analytics</a></li>
+                <li><a href="#" data-view="cards"><i data-lucide="credit-card"></i> Cards</a></li>
+                <li><a href="#" data-view="settings"><i data-lucide="settings"></i> Settings</a></li>
+                <li class="logout-item"><a href="#" id="logoutBtn"><i data-lucide="log-out"></i> Logout</a></li>
+            </ul>
+
+            <div class="sidebar-bottom">
+                <div class="user-profile">
+                    <img src="https://ui-avatars.com/api/?name=Fatih+Doe&background=random" alt="User Avatar"
+                        class="avatar">
+                    <div class="user-info">
+                        <span class="user-name" id="sidebarUserName">---</span>
+                        <span class="user-status">Member</span>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content Wrapper -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="top-header">
+                <!-- Mobile hamburger button -->
+                <button class="hamburger-btn" id="hamburgerBtn"><i data-lucide="menu"></i></button>
+                <div class="header-greeting">
+                    <h1 id="pageTitle">Overview</h1>
+                    <p id="pageSubtitle">Here is your AI-powered financial overview.</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn-primary" id="openTransferModalBtn"
+                        style="padding: 10px 18px; border-radius: 12px; font-size: 14px; margin-right: 12px; display: flex; align-items: center; gap: 8px;">
+                        <span><i data-lucide="send" style="width: 16px; height: 16px;"></i> Send</span>
+                        <div class="btn-glow"></div>
+                    </button>
+                    <button class="icon-btn tooltip" data-tooltip="Search"><i data-lucide="search"></i></button>
+                    <div class="dropdown-container">
+                        <button class="icon-btn tooltip notification-btn" id="bellBtn" data-tooltip="Notifications">
+                            <i data-lucide="bell"></i>
+                            <span class="badge" id="notifBadge">3</span>
+                        </button>
+                        <div class="dropdown-menu" id="notifMenu">
+                            <h4>Notifications</h4>
+                            <ul id="notifList">
+                                <!-- Populated via JS -->
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="views-container">
+                <!-- ======================== -->
+                <!-- VIEW 1: DASHBOARD        -->
+                <!-- ======================== -->
+                <section id="view-dashboard" class="app-view active">
+                    <div class="dashboard-grid">
+                        <!-- Total Balance Card -->
+                        <div class="glass-card balance-card tiltable">
+                            <div class="card-header">
+                                <h2>Total Balance</h2>
+                                <i data-lucide="more-horizontal"></i>
+                            </div>
+                            <div class="balance-amount">
+                                <h3>₺<span id="totalBalance" data-val="0">0</span>,<span>00</span></h3>
+                                <div class="trend positive">
+                                    <i data-lucide="trending-up"></i>
+                                    <span>+12.5% this month</span>
+                                </div>
+                            </div>
+
+                            <!-- Linked Banks -->
+                            <div class="linked-banks">
+                                <h4>Connected Accounts</h4>
+                                <div class="bank-list" id="dashboardBankList">
+                                    <!-- Populated via JS -->
+                                </div>
+                                <button class="btn-outline" id="addAccountBtn">
+                                    <span><i data-lucide="plus"></i> Add Account</span>
+                                    <div class="btn-glow"></div>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Expense Chart Card -->
+                        <div class="glass-card chart-card tiltable">
+                            <div class="card-header">
+                                <h2>Spending Analysis</h2>
+                                <select class="date-filter" id="chartFilter">
+                                    <option value="month">This Month</option>
+                                    <option value="lastMonth">Last Month</option>
+                                    <option value="year">This Year</option>
+                                </select>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="expenseChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Side Grid: Insights & Security -->
+                        <div class="side-grid">
+                            <!-- AI Insights -->
+                            <div class="glass-card ai-insights tiltable">
+                                <div class="card-header">
+                                    <div class="ai-title">
+                                        <i data-lucide="sparkles" class="neon-purple"></i>
+                                        <h2>AI Insights</h2>
+                                    </div>
+                                </div>
+                                <div class="insight-list">
+                                    <div class="insight-item warning pulse-border">
+                                        <i data-lucide="coffee"></i>
+                                        <div class="insight-content">
+                                            <p>You spent <strong>₺140</strong> on coffee shops this month. That's 40%
+                                                higher than your average.</p>
+                                        </div>
+                                    </div>
+                                    <div class="insight-item success glow-border">
+                                        <i data-lucide="piggy-bank"></i>
+                                        <div class="insight-content">
+                                            <p>Based on your current habits, you can save an extra <strong>₺300</strong>
+                                                by end of month.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Security Widget -->
+                            <div class="glass-card security-card tiltable">
+                                <div class="card-header">
+                                    <h2>Card Security</h2>
+                                    <i data-lucide="shield-check" class="neon-green"></i>
+                                </div>
+                                <div class="virtual-card" id="myCard">
+                                    <div class="vcard-glare"></div>
+                                    <div class="card-top">
+                                        <i data-lucide="wallet"></i>
+                                        <img src="https://upload.wikimedia.org/wikipedia/commons/a/a4/Mastercard_2019_logo.svg"
+                                            alt="MC" width="40">
+                                    </div>
+                                    <div class="card-number">•••• •••• •••• 4211</div>
+                                    <div class="card-bottom">
+                                        <div class="card-holder" id="vCardName">---</div>
+                                        <div class="card-valid">--/--</div>
+                                    </div>
+                                    <div class="freeze-overlay">
+                                        <i data-lucide="lock"></i>
+                                        <span>Card Frozen</span>
+                                    </div>
+                                </div>
+
+                                <div class="security-controls">
+                                    <div class="control-row">
+                                        <div class="control-info">
+                                            <strong>Freeze Card</strong>
+                                            <span>Temporarily disable this card</span>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" id="freezeToggle">
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                    <div class="control-row alert-row">
+                                        <div class="control-info">
+                                            <strong>Suspicious Activity</strong>
+                                            <span class="text-error" id="suspiciousText">1 Unrecognized
+                                                transaction</span>
+                                        </div>
+                                        <button class="btn-error" id="reviewTxBtn">Review</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div> <!-- End Side Grid -->
+                    </div>
+                </section>
+
+                <!-- ======================== -->
+                <!-- VIEW 2: TRANSACTIONS     -->
+                <!-- ======================== -->
+                <section id="view-transactions" class="app-view">
+                    <div class="glass-card transactions-card tiltable">
+                        <div class="card-header">
+                            <h2>All Transactions</h2>
+                            <div class="tx-filters">
+                                <button class="filter-btn active" data-filter="all">All</button>
+                                <button class="filter-btn" data-filter="income">Income</button>
+                                <button class="filter-btn" data-filter="expense">Expense</button>
+                            </div>
+                        </div>
+                        <div class="tx-list" id="mainTxList">
+                            <!-- Populated via JS -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ======================== -->
+                <!-- VIEW 3: ANALYTICS        -->
+                <!-- ======================== -->
+                <section id="view-analytics" class="app-view">
+                    <div class="dashboard-grid" style="grid-template-columns: 1fr 1fr;">
+                        <div class="glass-card tiltable" style="display: flex; flex-direction: column;">
+                            <div class="card-header">
+                                <h2>Spending by Category</h2>
+                                <i data-lucide="pie-chart" class="neon-purple"></i>
+                            </div>
+                            <div class="chart-container"
+                                style="flex-grow: 1; min-height: 300px; display: flex; justify-content: center; position: relative;">
+                                <canvas id="analyticsDoughnut"></canvas>
+                            </div>
+                        </div>
+                        <div class="glass-card tiltable">
+                            <div class="card-header">
+                                <h2>Expense Breakdown</h2>
+                                <i data-lucide="bar-chart-2"></i>
+                            </div>
+                            <div class="analytics-progress-list"
+                                style="display: flex; flex-direction: column; gap: 24px; margin-top: 16px;">
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ======================== -->
+                <!-- VIEW 4: CARDS            -->
+                <!-- ======================== -->
+                <section id="view-cards" class="app-view">
+                    <div class="dashboard-grid" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
+
+                        <!-- Primary Card -->
+                        <div class="glass-card tiltable"
+                            style="display: flex; flex-direction: column; align-items: center;">
+                            <div class="card-header" style="width: 100%;">
+                                <h2>Physical Card</h2>
+                                <span class="s-badge"
+                                    style="background: rgba(16, 185, 129, 0.15); color: var(--success); border-color: rgba(16, 185, 129, 0.3);">Active</span>
+                            </div>
+                            <div class="virtual-card" id="myCard"
+                                style="margin: 20px 0; width: 100%; max-width: 320px;">
+                                <div class="vcard-glare"></div>
+                                <div class="card-top">
+                                    <i data-lucide="wallet"></i>
+                                    <img src="https://upload.wikimedia.org/wikipedia/commons/a/a4/Mastercard_2019_logo.svg"
+                                        alt="MC" width="40">
+                                </div>
+                                <div class="card-number" style="font-size: 20px; letter-spacing: 2px;">•••• •••• ••••
+                                    8820</div>
+                                <div class="card-bottom">
+                                    <div class="card-holder">FATIH D.</div>
+                                    <div class="card-valid">12/28</div>
+                                </div>
+                            </div>
+
+                            <!-- Spend Limit UI -->
+                            <div class="card-limits"
+                                style="width: 100%; margin-bottom: 20px; background: rgba(255,255,255,0.03); padding: 16px; border-radius: 12px; border: 1px solid var(--border-color);">
+                                <div
+                                    style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px;">
+                                    <span style="color: var(--text-secondary);">Monthly Limit</span>
+                                    <span style="font-family: var(--font-mono);"><strong
+                                            style="color:white;">₺8,450</strong> / ₺10,000</span>
+                                </div>
+                                <div
+                                    style="width: 100%; background: rgba(255,255,255,0.1); height: 6px; border-radius: 3px; overflow: hidden;">
+                                    <div
+                                        style="width: 84.5%; background: var(--primary); height: 100%; border-radius: 3px; box-shadow: 0 0 8px var(--primary-glow);">
+                                    </div>
+                                </div>
+                                <div
+                                    style="display:flex; justify-content:space-between; margin-top: 12px; font-size: 12px; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 12px;">
+                                    <span style="color: var(--text-secondary);">CVV: <strong
+                                            style="color:white; filter: blur(3px); transition: filter 0.3s; cursor: pointer;"
+                                            onmouseover="this.style.filter='none'"
+                                            onmouseout="this.style.filter='blur(3px)'">***</strong></span>
+                                    <span style="color: var(--text-secondary);">Type: <strong
+                                            style="color:white;">Credit</strong></span>
+                                </div>
+                            </div>
+
+                            <div style="width: 100%; display: flex; gap: 10px; margin-top: auto;">
+                                <button id="btnPhysDetails" class="btn-outline"
+                                    style="padding: 12px; border-radius: 12px; flex:1;"><i data-lucide="eye"></i>
+                                    Details</button>
+                                <button id="btnPhysFreeze" class="btn-outline"
+                                    style="padding: 12px; border-radius: 12px; flex:1; color: var(--error); border-color: rgba(239, 68, 68, 0.3);"><i
+                                        data-lucide="lock"></i> Freeze</button>
+                            </div>
+                        </div>
+
+                        <!-- Virtual Travel Card -->
+                        <div class="glass-card tiltable"
+                            style="display: flex; flex-direction: column; align-items: center;">
+                            <div class="card-header" style="width: 100%;">
+                                <h2>Virtual Card</h2>
+                                <span class="s-badge">Travel Setup</span>
+                            </div>
+                            <div class="virtual-card"
+                                style="margin: 20px 0; width: 100%; max-width: 320px; background: linear-gradient(135deg, var(--secondary), #2a0845); box-shadow: 0 10px 30px var(--secondary-glow);">
+                                <div class="vcard-glare"></div>
+                                <div class="card-top">
+                                    <i data-lucide="globe"></i>
+                                    <img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/American_Express_logo_%282018%29.svg"
+                                        alt="AMEX" width="40" style="filter: brightness(0) invert(1);">
+                                </div>
+                                <div class="card-number" style="font-size: 20px; letter-spacing: 2px;">•••• •••••• •4211
+                                </div>
+                                <div class="card-bottom">
+                                    <div class="card-holder">FATIH D.</div>
+                                    <div class="card-valid">05/26</div>
+                                </div>
+                            </div>
+
+                            <!-- Spend Limit UI -->
+                            <div class="card-limits"
+                                style="width: 100%; margin-bottom: 20px; background: rgba(255,255,255,0.03); padding: 16px; border-radius: 12px; border: 1px solid var(--border-color);">
+                                <div
+                                    style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px;">
+                                    <span style="color: var(--text-secondary);">Travel Spend Limit</span>
+                                    <span style="font-family: var(--font-mono);"><strong
+                                            style="color:white;">₺1,150</strong> / ₺5,000</span>
+                                </div>
+                                <div
+                                    style="width: 100%; background: rgba(255,255,255,0.1); height: 6px; border-radius: 3px; overflow: hidden;">
+                                    <div
+                                        style="width: 23%; background: var(--secondary); height: 100%; border-radius: 3px; box-shadow: 0 0 8px var(--secondary-glow);">
+                                    </div>
+                                </div>
+                                <div
+                                    style="display:flex; justify-content:space-between; margin-top: 12px; font-size: 12px; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 12px;">
+                                    <span style="color: var(--text-secondary);">CVV: <strong
+                                            style="color:white; filter: blur(3px); transition: filter 0.3s; cursor: pointer;"
+                                            onmouseover="this.style.filter='none'"
+                                            onmouseout="this.style.filter='blur(3px)'">***</strong></span>
+                                    <span style="color: var(--text-secondary);">Type: <strong
+                                            style="color:white;">Virtual</strong></span>
+                                </div>
+                            </div>
+
+                            <div style="width: 100%; display: flex; gap: 10px; margin-top: auto;">
+                                <button id="btnVirtDetails" class="btn-outline"
+                                    style="padding: 12px; border-radius: 12px; flex:1;"><i data-lucide="eye"></i>
+                                    Details</button>
+                                <button id="btnVirtLimits" class="btn-outline"
+                                    style="padding: 12px; border-radius: 12px; flex:1;"><i data-lucide="settings-2"></i>
+                                    Limits</button>
+                            </div>
+                        </div>
+
+                        <!-- Request New Card -->
+                        <div id="btnCreateCard" class="glass-card tiltable"
+                            style="display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px dashed var(--border-color); cursor: pointer; text-align: center; min-height: 380px;">
+                            <div
+                                style="width: 64px; height: 64px; border-radius: 50%; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; margin-bottom: 20px; color: var(--primary);">
+                                <i data-lucide="plus" style="width: 32px; height: 32px;"></i>
+                            </div>
+                            <h3 style="margin-bottom: 8px;">Create Virtual Card</h3>
+                            <p style="color: var(--text-secondary); font-size: 14px;">Instantly generate a virtual card
+                                for safe online shopping.</p>
+                        </div>
+
+                    </div>
+                </section>
+
+                <section id="view-settings" class="app-view">
+                    <div class="settings-grid">
+                        <div class="glass-card profile-settings tiltable">
+                            <div class="card-header">
+                                <h2>Profile Settings</h2>
+                                <i data-lucide="user"></i>
+                            </div>
+                            <div class="settings-avatar-section">
+                                <div class="s-avatar-wrapper">
+                                    <img src="https://ui-avatars.com/api/?name=Fatih+Doe&background=random"
+                                        class="s-avatar" alt="Avatar">
+                                    <button class="s-avatar-edit"><i data-lucide="camera"></i></button>
+                                </div>
+                                <div class="s-avatar-info">
+                                    <h3 id="settingsDisplayName">---</h3>
+                                    <span class="s-badge">Member</span>
+                                </div>
+                            </div>
+                            <div class="settings-form">
+                                <div class="form-group">
+                                    <label>Display Name</label>
+                                    <div class="input-container">
+                                        <i data-lucide="user"></i>
+                                        <input type="text" id="profileNameInput" value="">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Email Address</label>
+                                    <div class="input-container">
+                                        <i data-lucide="mail"></i>
+                                        <input type="email" id="profileEmailInput" value="">
+                                    </div>
+                                </div>
+                                <button class="btn-primary" id="saveProfileBtn"
+                                    style="display:flex; justify-content:center; align-items:center;">
+                                    <span>Save Changes</span>
+                                    <i data-lucide="check" class="success-icon"
+                                        style="display:none; width: 20px; height: 20px;"></i>
+                                </button>
+                            </div>
+
+                            <!-- Password Change Form -->
+                            <div class="settings-form"
+                                style="margin-top:24px;padding-top:24px;border-top:1px solid rgba(255,255,255,0.07);">
+                                <h4
+                                    style="margin-bottom:16px;font-size:12px;color:var(--text-secondary);letter-spacing:.08em;text-transform:uppercase;">
+                                    Change Password</h4>
+                                <div class="form-group">
+                                    <label>Current Password</label>
+                                    <div class="input-container">
+                                        <i data-lucide="lock"></i>
+                                        <input type="password" id="currentPasswordInput" placeholder="••••••••">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>New Password <span style="font-size:11px;opacity:.5">(min 6
+                                            chars)</span></label>
+                                    <div class="input-container">
+                                        <i data-lucide="key"></i>
+                                        <input type="password" id="newPasswordInput" placeholder="••••••••">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Confirm New Password</label>
+                                    <div class="input-container">
+                                        <i data-lucide="shield-check"></i>
+                                        <input type="password" id="confirmPasswordInput" placeholder="••••••••">
+                                    </div>
+                                </div>
+                                <div id="passwordChangeMsg"
+                                    style="display:none;margin-bottom:12px;font-size:13px;padding:10px 14px;border-radius:8px;">
+                                </div>
+                                <button class="btn-primary" id="changePasswordBtn"
+                                    style="display:flex;justify-content:center;align-items:center;">
+                                    <span>Update Password</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="settings-column">
+                            <div class="glass-card app-preferences tiltable">
+                                <div class="card-header">
+                                    <h2>System Preferences</h2>
+                                    <i data-lucide="sliders"></i>
+                                </div>
+                                <div class="security-controls" style="margin-top:0;">
+                                    <div class="control-row">
+                                        <div class="control-info">
+                                            <strong>Theme Style</strong>
+                                            <span>Select your preferred visual mode</span>
+                                        </div>
+                                        <select id="themeSelector" class="theme-select custom-select">
+                                            <option value="dark">Dark (Premium)</option>
+                                            <option value="light">Light (Clean)</option>
+                                            <option value="cyber">Cyberpunk</option>
+                                            <option value="gold">Gold Luxury</option>
+                                            <option value="ocean">Ocean Depth</option>
+                                        </select>
+                                    </div>
+                                    <div class="control-row">
+                                        <div class="control-info">
+                                            <strong>Push Notifications</strong>
+                                            <span>Receive AI transaction alerts</span>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" id="pushNotifToggle" checked>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="glass-card app-preferences tiltable" style="margin-top: 28px;">
+                                <div class="card-header">
+                                    <h2>Advanced Security</h2>
+                                    <i data-lucide="shield"></i>
+                                </div>
+                                <div class="security-controls" style="margin-top:0;">
+                                    <div class="control-row">
+                                        <div class="control-info">
+                                            <strong>Two-Factor Auth (2FA)</strong>
+                                            <span>Require code on login</span>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" id="tfaToggle">
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                    <div class="control-row">
+                                        <div class="control-info">
+                                            <strong>Biometric Login</strong>
+                                            <span>Use FaceID / TouchID</span>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" id="bioToggle" checked>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="glass-card danger-zone tiltable"
+                                style="margin-top: 28px; border-color: rgba(239, 68, 68, 0.3);">
+                                <div class="card-header" style="margin-bottom: 16px;">
+                                    <h2 class="text-error">Danger Zone</h2>
+                                    <i data-lucide="alert-triangle" class="text-error"></i>
+                                </div>
+                                <div class="control-row" style="border:none; padding:0;">
+                                    <div class="control-info">
+                                        <strong>Reset Options</strong>
+                                        <span>Clear history permanently</span>
+                                    </div>
+                                    <button class="btn-error" style="width: auto;">Reset</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal-overlay" id="modalOverlay">
+        <!-- Add Account Modal -->
+        <div class="modal-content glass-card" id="addAccountModal">
+            <div class="modal-header">
+                <h3>Link Bank Account</h3>
+                <button class="close-modal"><i data-lucide="x"></i></button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-desc">Select a financial institution to securely link your accounts via Plaid.</p>
+                <div class="bank-grid">
+                    <div class="bank-select-item" data-bank="Chase">
+                        <div class="bank-icon b-chase"><i data-lucide="building-2"></i></div>
+                        <span>Chase</span>
+                    </div>
+                    <div class="bank-select-item" data-bank="Citi">
+                        <div class="bank-icon b-citi"><i data-lucide="building"></i></div>
+                        <span>CitiBank</span>
+                    </div>
+                    <div class="bank-select-item" data-bank="BoA">
+                        <div class="bank-icon b-boa"><i data-lucide="landmark"></i></div>
+                        <span>Bank of America</span>
+                    </div>
+                    <div class="bank-select-item" data-bank="WellsFargo">
+                        <div class="bank-icon b-wf"><i data-lucide="castle"></i></div>
+                        <span>Wells Fargo</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-primary" id="confirmAddAccount" disabled>Continue</button>
+            </div>
+        </div>
+
+        <!-- Review Transaction Modal -->
+        <div class="modal-content glass-card" id="reviewTxModal">
+            <div class="modal-header">
+                <h3 class="text-error">Suspicious Transaction</h3>
+                <button class="close-modal"><i data-lucide="x"></i></button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-desc">Our AI flagged a transaction that doesn't match your usual spending location. Do
+                    you recognize this?</p>
+                <div class="flagged-tx">
+                    <div class="tx-icon b-warning"><i data-lucide="map-pin"></i></div>
+                    <div class="tx-details">
+                        <strong>Electronics Store</strong>
+                        <span>Moscow, RU • Today at 3:14 AM</span>
+                    </div>
+                    <strong class="text-error">-₺849,00</strong>
+                </div>
+            </div>
+            <div class="modal-footer split">
+                <button class="btn-outline" id="rejectTxBtn">No, Freeze Card</button>
+                <button class="btn-primary" id="approveTxBtn">Yes, It's Me</button>
+            </div>
+        </div>
+
+        <!-- Multi-Step Transfer Modal -->
+        <div class="modal-content glass-card" id="transferModal">
+            <div class="modal-header">
+                <h3>Quick Transfer</h3>
+                <button class="close-modal"><i data-lucide="x"></i></button>
+            </div>
+            <div class="modal-body">
+                <div style="margin-bottom: 24px;">
+                    <label
+                        style="font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; display: block; text-transform: uppercase;">Recent
+                        Contacts</label>
+                    <div style="display: flex; gap: 16px; overflow-x: auto; padding-bottom: 10px;">
+                        <div class="contact-avatar selected-avatar" style="text-align: center; cursor: pointer;">
+                            <img src="https://ui-avatars.com/api/?name=Emma+W&background=6366f1&color=fff"
+                                style="width: 54px; height: 54px; border-radius: 50%; border: 2px solid var(--primary); padding: 2px;">
+                            <span style="font-size: 12px; display: block; margin-top: 6px;">Emma W.</span>
+                        </div>
+                        <div class="contact-avatar" style="text-align: center; cursor: pointer; opacity: 0.6;">
+                            <img src="https://ui-avatars.com/api/?name=John+D&background=10b981&color=fff"
+                                style="width: 54px; height: 54px; border-radius: 50%; border: 2px solid transparent; padding: 2px;">
+                            <span style="font-size: 12px; display: block; margin-top: 6px;">John D.</span>
+                        </div>
+                        <div class="contact-avatar" style="text-align: center; cursor: pointer; opacity: 0.6;">
+                            <img src="https://ui-avatars.com/api/?name=Selin+K&background=f59e0b&color=fff"
+                                style="width: 54px; height: 54px; border-radius: 50%; border: 2px solid transparent; padding: 2px;">
+                            <span style="font-size: 12px; display: block; margin-top: 6px;">Selin K.</span>
+                        </div>
+                        <div class="contact-avatar" style="text-align: center; cursor: pointer; opacity: 0.6;">
+                            <div
+                                style="width: 54px; height: 54px; border-radius: 50%; border: 1px dashed var(--border-color); display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.02);">
+                                <i data-lucide="search" style="color: var(--text-secondary);"></i>
+                            </div>
+                            <span style="font-size: 12px; display: block; margin-top: 6px;">Search</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group" style="position: relative;">
+                    <label>Amount to Send</label>
+                    <div
+                        style="position: absolute; left: 16px; top: 40px; font-size: 24px; font-family: var(--font-mono); color: var(--primary);">
+                        ₺</div>
+                    <input type="number" id="transferAmount" class="transfer-input" placeholder="0.00"
+                        style="padding: 16px 16px 16px 40px; font-size: 24px; font-weight: 700; width: 100%; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: white; font-family: var(--font-mono); outline: none;">
+                </div>
+            </div>
+            <div class="modal-footer" style="display: flex; gap: 16px;">
+                <button class="btn-primary" style="flex:1;" id="confirmTransferBtn">Review Transfer</button>
+            </div>
+        </div>
+        <!-- Card Details Modal -->
+        <div class="modal-content glass-card" id="cardDetailsModal">
+            <div class="modal-header">
+                <h3>Card Details</h3>
+                <button class="close-modal"><i data-lucide="x"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label>Card Number</label>
+                    <div class="input-container" style="display: flex; gap: 8px;">
+                        <input type="text" value="4532 8820 4211 0092" readonly style="flex:1;">
+                        <button class="btn-outline" style="padding: 0 16px; border-radius: 8px;"><i
+                                data-lucide="copy"></i></button>
+                    </div>
+                </div>
+                <div style="display:flex; gap: 16px;">
+                    <div class="form-group" style="flex:1;">
+                        <label>Expiration</label>
+                        <div class="input-container"><input type="text" value="12/28" readonly></div>
+                    </div>
+                    <div class="form-group" style="flex:1;">
+                        <label>CVV</label>
+                        <div class="input-container"><input type="password" value="823" readonly></div>
+                    </div>
+                </div>
+                <div class="form-group" style="margin-top: 16px;">
+                    <label>Registered Billing Address</label>
+                    <div class="input-container">
+                        <input type="text" value="San Francisco, CA 94105, 342 Tech Wave" readonly>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-primary close-modal" style="width:100%;">Done</button>
+            </div>
+        </div>
+
+        <!-- Card Limits Modal -->
+        <div class="modal-content glass-card" id="cardLimitsModal">
+            <div class="modal-header">
+                <h3>Adjust Spend Limit</h3>
+                <button class="close-modal"><i data-lucide="x"></i></button>
+            </div>
+            <div class="modal-body" style="text-align: center;">
+                <h1 style="font-family: var(--font-mono); font-size: 36px; margin-bottom: 20px;" id="limitDisplayVal">
+                    ₺5,000</h1>
+                <input type="range" id="limitSlider" min="1000" max="25000" step="500" value="5000"
+                    style="width: 100%; margin-bottom: 24px;">
+                <p style="color: var(--text-secondary); font-size: 14px;">Drag to adjust your monthly spending limit for
+                    this virtual card.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-primary" id="saveLimitBtn">Save Limit</button>
+            </div>
+        </div>
+
+        <!-- Create Virtual Card Modal -->
+        <div class="modal-content glass-card" id="createCardModal">
+            <div class="modal-header">
+                <h3>Create Virtual Card</h3>
+                <button class="close-modal"><i data-lucide="x"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Card Purpose</label>
+                    <select class="custom-select"
+                        style="width: 100%; border: 1px solid var(--border-color); background: rgba(255,255,255,0.05); color: white; padding: 12px; border-radius: 8px;">
+                        <option value="shopping">Online Shopping</option>
+                        <option value="travel">Travel & Booking</option>
+                        <option value="subscriptions">Subscriptions</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Initial Limit (₺)</label>
+                    <div class="input-container">
+                        <i data-lucide="banknote"></i>
+                        <input type="number" placeholder="Enter amount..." value="3000">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-primary" id="confirmCreateCardBtn">Generate Secure Card</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- AI Floating Action Button -->
+    <button class="ai-fab" id="openAiChatBtn">
+        <i data-lucide="bot"></i>
+        <span class="pulse-ring"></span>
+    </button>
+
+    <!-- AI Chat Panel -->
+    <div class="ai-chat-panel glass-card" id="aiChatPanel">
+        <div class="ai-chat-header">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div
+                    style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--secondary), var(--primary)); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                    <i data-lucide="sparkles" style="color: white; width: 20px; height: 20px;"></i>
+                </div>
+                <div>
+                    <h3 style="font-size: 16px; margin: 0;">NexBot</h3>
+                    <p style="font-size: 12px; color: var(--success); margin: 0;">Neural Financial Advisor</p>
+                </div>
+            </div>
+            <button class="icon-btn" id="closeAiChatBtn"
+                style="width: 32px; height: 32px; min-width: auto; border:none; background:transparent;"><i
+                    data-lucide="chevron-down"></i></button>
+        </div>
+        <div class="ai-chat-body" id="aiChatBody">
+            <div class="chat-msg ai-msg">
+                Hi! Ready to review your portfolio or ask me to categorize this month's expenses?
+                <span class="msg-time">Just now</span>
+            </div>
+        </div>
+        <div class="ai-chat-input">
+            <input type="text" id="aiChatInput" placeholder="Ask NexBot anything..." autocomplete="off"
+                autocorrect="off" autocapitalize="off" spellcheck="false" data-gramm="false" data-gramm_editor="false"
+                data-enable-grammarly="false" aria-autocomplete="none">
+            <button id="sendAiChatBtn"><i data-lucide="send"></i></button>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <!-- GSAP for Animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/TextPlugin.min.js"></script>
+    <!-- Chart.js for Analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="app.js?v=999"></script>
+</body>
+
+</html>
