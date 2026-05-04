@@ -208,7 +208,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const limitTextContainers = document.querySelectorAll('.card-limits strong');
             if (limitTextContainers.length >= 2) limitTextContainers[1].innerText = `₺${Number(appState.user.virtualCardLimit).toLocaleString('tr-TR')}`;
         }
-        
+
         const myCard = document.getElementById('myCard');
         const freezeToggle = document.getElementById('freezeToggle');
         const btnPhysFreeze = document.getElementById('btnPhysFreeze');
@@ -992,7 +992,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ name, username, password })
                 });
-                
+
                 if (res.ok) {
                     const data = await res.json();
                     sessionStorage.setItem('nexbank_token', data.token);
@@ -1196,16 +1196,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const touch = e.touches[0];
             startX = touch.clientX;
             startY = touch.clientY;
-            
+
             const rect = aiFabBtn.getBoundingClientRect();
             aiFabBtn.style.right = 'auto';
             aiFabBtn.style.bottom = 'auto';
             aiFabBtn.style.left = `${rect.left}px`;
             aiFabBtn.style.top = `${rect.top}px`;
-            
+
             initialX = rect.left;
             initialY = rect.top;
-            
+
             aiFabBtn.style.transition = 'none';
             moved = false;
         }, { passive: true });
@@ -1218,19 +1218,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (Math.abs(dx) > 10 || Math.abs(dy) > 10) {
                 moved = true;
-                
+
                 let newX = initialX + dx;
                 let newY = initialY + dy;
-                
+
                 const maxX = window.innerWidth - aiFabBtn.offsetWidth;
-                const maxY = window.innerHeight - aiFabBtn.offsetHeight - 85; 
+                const maxY = window.innerHeight - aiFabBtn.offsetHeight - 85;
                 newX = Math.max(0, Math.min(newX, maxX));
                 newY = Math.max(0, Math.min(newY, maxY));
-                
+
                 aiFabBtn.style.left = `${newX}px`;
                 aiFabBtn.style.top = `${newY}px`;
-                
-                if(e.cancelable) e.preventDefault();
+
+                if (e.cancelable) e.preventDefault();
             }
         }, { passive: false });
 
@@ -1247,7 +1247,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             aiChatPanel.classList.toggle('active');
         });
-        
+
         closeAiChatBtn.addEventListener('click', () => {
             aiChatPanel.classList.remove('active');
         });
@@ -1332,11 +1332,11 @@ document.addEventListener('DOMContentLoaded', () => {
         toast.style.borderColor = 'rgba(99, 102, 241, 0.4)';
         toast.style.color = '#fff';
         toast.style.boxShadow = '0 10px 30px rgba(0,0,0,0.5)';
-        
+
         toast.innerHTML = `<i data-lucide="${icon}" style="width:18px;height:18px;"></i> <span>${message}</span>`;
         toastContainer.appendChild(toast);
         lucide.createIcons();
-        
+
         setTimeout(() => {
             toast.style.opacity = '0';
             toast.style.transition = 'opacity 0.3s ease';
@@ -1348,9 +1348,9 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
         // Select potentially unhandled buttons/clickable items, using .lucide-* since <i> tags are replaced by SVG
         const allButtons = document.querySelectorAll('button, .icon-btn, .btn-outline, .btn-error, .user-profile, .bank-select-item, .lucide-more-horizontal, .lucide-download, .lucide-settings, .lucide-bell');
-        
+
         const handledIds = ['loginBtn', 'togglePassword', 'registerBtn', 'logoutBtn', 'hamburgerBtn', 'sidebarClose', 'bellBtn', 'addAccountBtn', 'confirmAddAccount', 'btnPhysDetails', 'btnVirtDetails', 'btnVirtLimits', 'btnPhysFreeze', 'btnCreateCard', 'confirmCreateCardBtn', 'saveLimitBtn', 'freezeToggle'];
-        
+
         allButtons.forEach(btn => {
             // Skip buttons we actually bound logic to
             if (btn.id && handledIds.includes(btn.id)) return;
@@ -1361,28 +1361,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
             btn.classList.add('interactive-icon');
             // Give SVG icons a pointer cursor if they don't have it
-            if(btn.tagName.toLowerCase() === 'svg') btn.style.cursor = 'pointer';
-            
+            if (btn.tagName.toLowerCase() === 'svg') btn.style.cursor = 'pointer';
+
             btn.setAttribute('data-action-bound', 'true');
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                
+
                 let actionName = btn.innerText.trim();
-                if(!actionName && btn.getAttribute('data-tooltip')) {
+                if (!actionName && btn.getAttribute('data-tooltip')) {
                     actionName = btn.getAttribute('data-tooltip');
                 }
-                
-                if(!actionName) {
+
+                if (!actionName) {
                     // Try to guess from class list if it's an SVG
-                    if(btn.classList.contains('lucide-more-horizontal')) actionName = 'Ayarlar';
-                    else if(btn.classList.contains('lucide-search')) actionName = 'Arama';
+                    if (btn.classList.contains('lucide-more-horizontal')) actionName = 'Ayarlar';
+                    else if (btn.classList.contains('lucide-search')) actionName = 'Arama';
                     else actionName = 'Bu özellik';
                 }
-                
+
                 if (actionName === 'more-horizontal' || actionName.toLowerCase() === 'settings') actionName = 'Ayarlar';
                 if (actionName.toLowerCase() === 'search') actionName = 'Arama';
-                
+
                 if (actionName === 'Arama') {
                     openModal('searchModal');
                     setTimeout(() => document.getElementById('searchInput').focus(), 300);
@@ -1394,20 +1394,26 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 1500);
 
     // --- 8. SEARCH LOGIC ---
-    const openSearchBtn = document.getElementById('openSearchBtn');
-    if (openSearchBtn) {
-        openSearchBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            openModal('searchModal');
-            setTimeout(() => document.getElementById('searchInput').focus(), 300);
-        });
-    }
+    const searchBtns = ['headerSearchBtn', 'transferSearchBtn'];
+    searchBtns.forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                openModal('searchModal');
+                setTimeout(() => {
+                    const input = document.getElementById('searchInput');
+                    if (input) input.focus();
+                }, 300);
+            });
+        }
+    });
 
     const searchInput = document.getElementById('searchInput');
     const searchResults = document.getElementById('searchResults');
     const searchPlaceholder = document.getElementById('searchPlaceholder');
-    
+
     if (searchInput && searchResults && searchPlaceholder) {
         searchInput.addEventListener('input', (e) => {
             const query = e.target.value.toLowerCase().trim();
@@ -1416,23 +1422,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 searchPlaceholder.style.display = 'block';
                 return;
             }
-            
+
             searchPlaceholder.style.display = 'none';
             searchResults.style.display = 'flex';
-            
+
             // Mock Data for Search
             const mockDb = [
                 { type: 'transaction', name: 'Netflix Subscription', amount: '-₺240', date: 'Bugün', icon: 'monitor-play', color: 'error' },
                 { type: 'transaction', name: 'Amazon Prime', amount: '-₺39', date: 'Dün', icon: 'shopping-cart', color: 'error' },
                 { type: 'transaction', name: 'Maaş Ödemesi', amount: '+₺45.000', date: 'Geçen Hafta', icon: 'briefcase', color: 'success' },
                 { type: 'contact', name: 'Selin K.', info: 'IBAN Kayıtlı', icon: 'user', color: 'primary' },
-                { type: 'contact', name: 'John D.', info: 'Yurt Dışı Transfer', icon: 'user', color: 'primary' },
+                { type: 'contact', name: 'Emir D.', info: 'Yurt Dışı Transfer', icon: 'user', color: 'primary' },
                 { type: 'setting', name: 'Karanlık Tema Ayarları', info: 'Görünüm', icon: 'moon', color: 'secondary' },
                 { type: 'setting', name: 'Bildirim Tercihleri', info: 'Hesap', icon: 'bell', color: 'secondary' }
             ];
-            
-            const filtered = mockDb.filter(item => item.name.toLowerCase().includes(query) || item.info?.toLowerCase().includes(query));
-            
+
+            const filtered = mockDb.filter(item => {
+                const name = (item.name || "").toLowerCase();
+                const info = (item.info || item.date || "").toLowerCase();
+                return name.indexOf(query) !== -1 || info.indexOf(query) !== -1;
+            });
+
             searchResults.innerHTML = '';
             if (filtered.length === 0) {
                 searchResults.innerHTML = `<div style="text-align:center; padding: 20px; color: var(--text-secondary);">"${query}" için sonuç bulunamadı.</div>`;

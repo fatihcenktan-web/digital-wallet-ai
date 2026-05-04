@@ -25,7 +25,7 @@
         rel="stylesheet">
     <!-- Icons (Lucide) -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <link rel="stylesheet" href="style.css?v=2.3">
+    <link rel="stylesheet" href="style.css?v=2.4">
 </head>
 
 <body>
@@ -189,7 +189,7 @@
                         <span><i data-lucide="send" style="width: 16px; height: 16px;"></i> Send</span>
                         <div class="btn-glow"></div>
                     </button>
-                    <button class="icon-btn tooltip" data-tooltip="Search"><i data-lucide="search"></i></button>
+                    <button class="icon-btn tooltip" id="headerSearchBtn" data-tooltip="Search"><i data-lucide="search"></i></button>
                     <div class="dropdown-container">
                         <button class="icon-btn tooltip notification-btn" id="bellBtn" data-tooltip="Notifications">
                             <i data-lucide="bell"></i>
@@ -763,7 +763,7 @@
                                 style="width: 54px; height: 54px; border-radius: 50%; border: 2px solid transparent; padding: 2px;">
                             <span style="font-size: 12px; display: block; margin-top: 6px;">Selin K.</span>
                         </div>
-                        <div class="contact-avatar" id="openSearchBtn" style="text-align: center; cursor: pointer; opacity: 0.6;">
+                        <div class="contact-avatar" id="transferSearchBtn" style="text-align: center; cursor: pointer; opacity: 0.6;">
                             <div
                                 style="width: 54px; height: 54px; border-radius: 50%; border: 1px dashed var(--border-color); display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.02);">
                                 <i data-lucide="search" style="color: var(--text-secondary);"></i>
@@ -937,7 +937,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/TextPlugin.min.js"></script>
     <!-- Chart.js for Analytics -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="app.js?v=1003"></script>
+    <script src="app.js?v=1004"></script>
 </body>
 
 </html>
