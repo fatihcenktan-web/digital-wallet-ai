@@ -1394,6 +1394,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 1500);
 
     // --- 8. SEARCH LOGIC ---
+    const openSearchBtn = document.getElementById('openSearchBtn');
+    if (openSearchBtn) {
+        openSearchBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            openModal('searchModal');
+            setTimeout(() => document.getElementById('searchInput').focus(), 300);
+        });
+    }
+
     const searchInput = document.getElementById('searchInput');
     const searchResults = document.getElementById('searchResults');
     const searchPlaceholder = document.getElementById('searchPlaceholder');
