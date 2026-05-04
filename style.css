@@ -31,10 +31,10 @@
 }
 
 [data-theme="light"] {
-    --bg-dark: #f3f4f6;
-    --bg-card: rgba(255, 255, 255, 0.8);
-    --border-color: rgba(0, 0, 0, 0.08);
-    --border-highlight: rgba(0, 0, 0, 0.15);
+    --bg-dark: #f8fafc;
+    --bg-card: rgba(255, 255, 255, 0.95);
+    --border-color: rgba(0, 0, 0, 0.12);
+    --border-highlight: rgba(0, 0, 0, 0.18);
     --text-primary: #111827;
     --text-secondary: #6b7280;
 
@@ -620,7 +620,8 @@ body {
 
 /* Premium Glass Card with proper 3D potential */
 .glass-card {
-    background: linear-gradient(145deg, rgba(30, 30, 35, 0.5), rgba(15, 15, 20, 0.3));
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+    background-color: var(--bg-card);
     border: 1px solid var(--border-color);
     border-top: 1px solid var(--border-highlight);
     /* Highlight top edge for depth */
@@ -628,7 +629,7 @@ body {
     padding: 28px;
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    box-shadow: 0 24px 40px rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+    box-shadow: 0 24px 40px rgba(0, 0, 0, 0.2), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
     /* For Tilt */
     transform-style: preserve-3d;
     transition: box-shadow 0.3s;
