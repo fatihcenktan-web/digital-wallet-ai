@@ -311,10 +311,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // NOTE: appContainer already declared on line 28 — do not re-declare here
 
     tlPreloader
-        .to('#loaderBar', { width: '100%', duration: 1.5, ease: 'power3.inOut' })
+        .to('#loaderBar', { width: '100%', duration: 0.2, ease: 'power3.inOut' })
         .call(() => { document.querySelector('.p-subtitle').innerText = "System Ready"; })
-        .to('.preloader-content', { scale: 0.95, opacity: 0, duration: 0.4, delay: 0.2, ease: 'power2.in' })
-        .to('#preloader', { yPercent: -100, duration: 0.8, ease: 'power4.inOut' })
+        .to('.preloader-content', { scale: 0.95, opacity: 0, duration: 0.1, delay: 0.05, ease: 'power2.in' })
+        .to('#preloader', { yPercent: -100, duration: 0.2, ease: 'power4.inOut' })
         .call(() => {
             console.log('Preloader finished - running checkAuth()');
             const preloader = document.getElementById('preloader');
@@ -1383,10 +1383,68 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (actionName === 'more-horizontal' || actionName.toLowerCase() === 'settings') actionName = 'Ayarlar';
                 if (actionName.toLowerCase() === 'search') actionName = 'Arama';
                 
-                window.showUIToast(`${actionName} çok yakında eklenecektir!`, 'loader');
+                if (actionName === 'Arama') {
+                    openModal('searchModal');
+                    setTimeout(() => document.getElementById('searchInput').focus(), 300);
+                } else {
+                    window.showUIToast(`${actionName} çok yakında eklenecektir!`, 'loader');
+                }
             });
         });
     }, 1500);
+
+    // --- 8. SEARCH LOGIC ---
+    const searchInput = document.getElementById('searchInput');
+    const searchResults = document.getElementById('searchResults');
+    const searchPlaceholder = document.getElementById('searchPlaceholder');
+    
+    if (searchInput && searchResults && searchPlaceholder) {
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase().trim();
+            if (query.length === 0) {
+                searchResults.style.display = 'none';
+                searchPlaceholder.style.display = 'block';
+                return;
+            }
+            
+            searchPlaceholder.style.display = 'none';
+            searchResults.style.display = 'flex';
+            
+            // Mock Data for Search
+            const mockDb = [
+                { type: 'transaction', name: 'Netflix Subscription', amount: '-₺240', date: 'Bugün', icon: 'monitor-play', color: 'error' },
+                { type: 'transaction', name: 'Amazon Prime', amount: '-₺39', date: 'Dün', icon: 'shopping-cart', color: 'error' },
+                { type: 'transaction', name: 'Maaş Ödemesi', amount: '+₺45.000', date: 'Geçen Hafta', icon: 'briefcase', color: 'success' },
+                { type: 'contact', name: 'Selin K.', info: 'IBAN Kayıtlı', icon: 'user', color: 'primary' },
+                { type: 'contact', name: 'John D.', info: 'Yurt Dışı Transfer', icon: 'user', color: 'primary' },
+                { type: 'setting', name: 'Karanlık Tema Ayarları', info: 'Görünüm', icon: 'moon', color: 'secondary' },
+                { type: 'setting', name: 'Bildirim Tercihleri', info: 'Hesap', icon: 'bell', color: 'secondary' }
+            ];
+            
+            const filtered = mockDb.filter(item => item.name.toLowerCase().includes(query) || item.info?.toLowerCase().includes(query));
+            
+            searchResults.innerHTML = '';
+            if (filtered.length === 0) {
+                searchResults.innerHTML = `<div style="text-align:center; padding: 20px; color: var(--text-secondary);">"${query}" için sonuç bulunamadı.</div>`;
+            } else {
+                filtered.forEach(item => {
+                    searchResults.innerHTML += `
+                        <div class="bank-select-item" style="flex-direction: row; padding: 12px; gap: 16px; margin: 0;">
+                            <div style="background: var(--${item.color}); opacity: 0.9; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                <i data-lucide="${item.icon}" style="color: white; width: 20px; height: 20px;"></i>
+                            </div>
+                            <div style="flex: 1; text-align: left;">
+                                <div style="font-weight: 600; font-size: 14px;">${item.name}</div>
+                                <div style="font-size: 12px; color: var(--text-secondary);">${item.info || item.date}</div>
+                            </div>
+                            ${item.amount ? `<div style="font-weight: bold; color: var(--${item.color});">${item.amount}</div>` : ''}
+                        </div>
+                    `;
+                });
+                lucide.createIcons();
+            }
+        });
+    }
 
     // NOTE: checkAuth() is triggered by the preloader's completion callback above
 });
