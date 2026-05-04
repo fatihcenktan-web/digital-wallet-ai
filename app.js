@@ -9,6 +9,32 @@ try {
     console.warn('Script initialization warning:', e);
 }
 
+// --- GLOBAL MODAL FUNCTIONS ---
+window.openModal = (id) => {
+    const modal = document.getElementById(id);
+    const overlay = document.getElementById('modalOverlay');
+    if (!modal || !overlay) return;
+    
+    document.querySelectorAll('.modal-content').forEach(m => m.classList.remove('active'));
+    modal.classList.add('active');
+    overlay.classList.add('active');
+    
+    // Auto-focus search input if opening search modal
+    if (id === 'searchModal') {
+        setTimeout(() => {
+            const input = document.getElementById('searchInput');
+            if (input) input.focus();
+        }, 300);
+    }
+};
+
+window.closeModal = () => {
+    const modals = document.querySelectorAll('.modal-content');
+    const modalOverlay = document.getElementById('modalOverlay');
+    if (modalOverlay) modalOverlay.classList.remove('active');
+    setTimeout(() => modals.forEach(m => m.classList.remove('active')), 300);
+};
+
 // --- 1. CONFIG & STATE ---
 const API_URL = (window.location.protocol === 'file:' || ((window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port !== '5000')) ? 'http://localhost:5000/api' : '/api';
 const appState = {
@@ -659,23 +685,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 6. MODAL LOGIC ---
     const modalOverlay = document.getElementById('modalOverlay');
-    const modals = document.querySelectorAll('.modal-content');
     const closeBtns = document.querySelectorAll('.close-modal');
-
-    const openModal = (id) => {
-        modals.forEach(m => m.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        modalOverlay.classList.add('active');
-    };
-
-    const closeModal = () => {
-        modalOverlay.classList.remove('active');
-        setTimeout(() => modals.forEach(m => m.classList.remove('active')), 300);
-    };
-
     closeBtns.forEach(btn => btn.addEventListener('click', closeModal));
-    modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) closeModal(); });
-
+    if (modalOverlay) {
+        modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) closeModal(); });
+    }
     // Trigger: Add Account
     const btnAddAccount = document.getElementById('addAccountBtn');
     if (btnAddAccount) btnAddAccount.addEventListener('click', () => openModal('addAccountModal'));
@@ -1394,21 +1408,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 1500);
 
     // --- 8. SEARCH LOGIC ---
-    const searchBtns = ['headerSearchBtn', 'transferSearchBtn'];
-    searchBtns.forEach(id => {
-        const btn = document.getElementById(id);
-        if (btn) {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                openModal('searchModal');
-                setTimeout(() => {
-                    const input = document.getElementById('searchInput');
-                    if (input) input.focus();
-                }, 300);
-            });
-        }
-    });
+    // (Search buttons now use direct onclick="openModal('searchModal')" for maximum reliability)
 
     const searchInput = document.getElementById('searchInput');
     const searchResults = document.getElementById('searchResults');
